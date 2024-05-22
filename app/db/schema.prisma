@@ -1,0 +1,136 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Companies {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  companyOwners CompanyOwners[]
+
+  locations Locations[]
+}
+
+model Locations {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  checklists Checklists[]
+
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId Int
+
+  locationManagers LocationManagers[]
+
+  userLocations UserLocations[]
+}
+
+model Checklists {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  checklistItems ChecklistItems[]
+
+  checklistOccurrences ChecklistOccurrences[]
+
+  location   Locations @relation(fields: [locationId], references: [id])
+  locationId Int
+}
+
+model ChecklistOccurrences {
+  id             Int       @id @default(autoincrement())
+  scheduledDate  DateTime
+  completionDate DateTime?
+
+  checklists  Checklists @relation(fields: [checklistId], references: [id])
+  checklistId Int
+
+  checklistRecords ChecklistRecords[]
+}
+
+model ChecklistItems {
+  id          Int    @id @default(autoincrement())
+  description String
+
+  checklist   Checklists @relation(fields: [checklistId], references: [id])
+  checklistId Int
+
+  checklistRecords ChecklistRecords[]
+}
+
+model ChecklistRecords {
+  id             Int       @id @default(autoincrement())
+  completionDate DateTime?
+  status         String    @default("pending")
+
+  checklistOccurrence   ChecklistOccurrences @relation(fields: [checklistOccurrenceId], references: [id])
+  checklistOccurrenceId Int
+
+  checklistItem   ChecklistItems @relation(fields: [checklistItemId], references: [id])
+  checklistItemId Int
+
+  user   Users @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model Users {
+  id    Int    @id @default(autoincrement())
+  name  String
+  phone Int    @unique
+
+  companyOwners CompanyOwners[]
+
+  checklistRecords ChecklistRecords[]
+
+  locationManagers LocationManagers[]
+
+  twoFactorAuthCodes TwoFactorAuthCodes[]
+
+  userLocations UserLocations[]
+}
+
+model UserLocations {
+  id Int @id @default(autoincrement())
+
+  locationId Int
+  location   Locations @relation(fields: [locationId], references: [id])
+
+  userId Int
+  user   Users @relation(fields: [userId], references: [id])
+}
+
+model CompanyOwners {
+  id Int @id @default(autoincrement())
+
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId Int
+
+  user   Users @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model LocationManagers {
+  id Int @id @default(autoincrement())
+
+  location   Locations @relation(fields: [locationId], references: [id])
+  locationId Int
+
+  user   Users @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model TwoFactorAuthCodes {
+  id        Int      @id @default(autoincrement())
+  code      String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user   Users @relation(fields: [userId], references: [id])
+  userId Int
+}

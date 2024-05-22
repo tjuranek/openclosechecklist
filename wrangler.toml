@@ -2,3 +2,12 @@
 name = "openclosechecklist"
 compatibility_date = "2024-05-12"
 pages_build_output_dir = "./build/client"
+
+[dev]
+port = 4000
+
+[[d1_databases]]
+binding = "DB"
+database_name = "openclosechecklist-db"
+database_id = "79f19385-2449-4655-aa52-6b890d1777da"
+migrations_dir = "app/db/migrations"
