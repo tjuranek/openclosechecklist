@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Companies {
+  id   String @id @default(uuid())
+  name String
+
+  companyOwners CompanyOwners[]
+
+  locations Locations[]
+}
+
+model Locations {
+  id   String @id @default(uuid())
+  name String
+
+  checklists Checklists[]
+
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId String
+
+  locationManagers LocationManagers[]
+
+  userLocations UserLocations[]
+}
+
+model Checklists {
+  id   String @id @default(uuid())
+  name String
+
+  checklistItems ChecklistItems[]
+
+  checklistOccurrences ChecklistOccurrences[]
+
+  location   Locations @relation(fields: [locationId], references: [id])
+  locationId String
+}
+
+model ChecklistOccurrences {
+  id             String    @id @default(uuid())
+  scheduledDate  DateTime
+  completionDate DateTime?
+
+  checklists  Checklists @relation(fields: [checklistId], references: [id])
+  checklistId String
+
+  checklistRecords ChecklistRecords[]
+}
+
+model ChecklistItems {
+  id          String @id @default(uuid())
+  description String
+
+  checklist   Checklists @relation(fields: [checklistId], references: [id])
+  checklistId String
+
+  checklistRecords ChecklistRecords[]
+}
+
+model ChecklistRecords {
+  id             String    @id @default(uuid())
+  completionDate DateTime?
+  status         String    @default("pending")
+
+  checklistOccurrence   ChecklistOccurrences @relation(fields: [checklistOccurrenceId], references: [id])
+  checklistOccurrenceId String
+
+  checklistItem   ChecklistItems @relation(fields: [checklistItemId], references: [id])
+  checklistItemId String
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model Users {
+  id        String @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String @unique
+
+  companyOwners CompanyOwners[]
+
+  checklistRecords ChecklistRecords[]
+
+  locationManagers LocationManagers[]
+
+  twoFactorAuthCodes TwoFactorAuthCodes[]
+
+  userLocations UserLocations[]
+
+  magicLinks MagicLinks[]
+}
+
+model UserLocations {
+  id String @id @default(uuid())
+
+  locationId String
+  location   Locations @relation(fields: [locationId], references: [id])
+
+  userId String
+  user   Users  @relation(fields: [userId], references: [id])
+}
+
+model CompanyOwners {
+  id String @id @default(uuid())
+
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId String
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model LocationManagers {
+  id String @id @default(uuid())
+
+  location   Locations @relation(fields: [locationId], references: [id])
+  locationId String
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model TwoFactorAuthCodes {
+  id        String   @id @default(uuid())
+  code      String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model MagicLinks {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String
+}
