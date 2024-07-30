@@ -1,7 +1,8 @@
-import { Outlet } from "@remix-run/react";
-import { Navbar, NavbarItem, NavbarSection } from "~/components/navbar";
-import { Sidebar, SidebarBody, SidebarItem, SidebarSection } from "~/components/sidebar";
-import { StackedLayout } from "~/components/stacked-layout";
+import { json, Outlet } from '@remix-run/react';
+import { Navbar, NavbarItem, NavbarSection } from '~/components/navbar';
+import { Sidebar, SidebarBody, SidebarItem, SidebarSection } from '~/components/sidebar';
+import { StackedLayout } from '~/components/stacked-layout';
+import { withAuth } from '~/services/auth/auth.util';
 
 enum Routes {
   Dashboard = '/dashboard',
@@ -11,7 +12,11 @@ enum Routes {
 const navItems = [
   { label: 'Dashboard', url: Routes.Dashboard },
   { label: 'Locations', url: Routes.Locations }
-]
+];
+
+export const loader = withAuth(({ user }) => {
+  return json({ user });
+});
 
 export default function Layout() {
   return (
@@ -41,5 +46,5 @@ export default function Layout() {
     >
       <Outlet />
     </StackedLayout>
-  )  
+  );
 }

@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { verifyMagicLink } from "~/services/auth/magic-link.service";
-import { createSession } from "~/services/auth/session.service";
+import { AuthService } from "~/services/auth/auth.service";
+import { MagicLinkService } from "~/services/magic-link/magic-link.service";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -10,11 +10,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect('/login');
   }
 
-  const user = await verifyMagicLink(token);
+  const user = await MagicLinkService.verifyMagicLink(token);
 
   if (!user) {
     return redirect("/login?error=invalid-or-expired-magic-link")
   }
 
-  return createSession(request, user.id);
+  return new AuthService(request).login(user.id);
 }

@@ -9,10 +9,10 @@ import { getFormProps, useForm } from "@conform-to/react";
 import { Link } from "~/components/link";
 import { Text } from "~/components/text";
 import { Heading } from "~/components/heading";
-import { createUser } from "~/services/users";
 import { UniqueConstraintError } from "~/db/errors";
-import { sendMagicLinkEmail } from "~/services/email/email.service";
-import { createMagicLink } from "~/services/auth/magic-link.service";
+import { UserService } from "~/services/user/user.service";
+import { MagicLinkService } from "~/services/magic-link/magic-link.service";
+import { EmailService } from "~/services/email/email.service";
 
 const schema = z.object({
 	firstName: z.string({ required_error: "First name is required." }),
@@ -29,10 +29,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	try {
 		const { firstName, lastName, email } = submission.value;
-		const user = await createUser(firstName, lastName, email);
-		const magicLink = await createMagicLink(user.id);
+		const user = await UserService.create(firstName, lastName, email);
+		const magicLink = await MagicLinkService.createMagicLink(user.id);
 
-		await sendMagicLinkEmail(user.email, user.firstName, magicLink);
+		await EmailService.sendMagicLinkEmail(user.email, user.firstName, magicLink);
 		return redirect("/login?success=true");
 	} catch (error) {
 		if (error instanceof UniqueConstraintError) {

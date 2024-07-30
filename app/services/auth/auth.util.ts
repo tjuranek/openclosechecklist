@@ -1,12 +1,11 @@
-
-import { Users } from "@prisma/client";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { getLoggedInUser } from "./session.service";
+import { User } from '@prisma/client';
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import { AuthService } from './auth.service';
 
 type DataFunctionArgs = ActionFunctionArgs | LoaderFunctionArgs;
 
 type AuthenticatedDataFunctionArgs = DataFunctionArgs & {
-  user: Users;
+  user: User;
 };
 
 type AuthenticatedDataFunction<T> = (args: AuthenticatedDataFunctionArgs) => T;
@@ -16,7 +15,7 @@ type AuthenticatedDataFunction<T> = (args: AuthenticatedDataFunctionArgs) => T;
  */
 export function withAuth<T>(dataFunction: AuthenticatedDataFunction<T>) {
   return async function (args: DataFunctionArgs) {
-    const user = await getLoggedInUser(args.request);
+    const user = await new AuthService(args.request).getUser();
 
     return dataFunction({ ...args, user });
   };

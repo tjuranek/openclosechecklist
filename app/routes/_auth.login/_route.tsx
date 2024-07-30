@@ -1,61 +1,54 @@
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import {
-  Form,
-  json,
-  redirect,
-  useActionData,
-  useLoaderData,
-} from "@remix-run/react";
-import { Button } from "~/components/button";
-import { Field, FieldGroup, Fieldset, Label } from "~/components/fieldset";
-import { Input } from "~/components/input";
-import { z } from "zod";
-import { getFormProps, SubmissionResult, useForm } from "@conform-to/react";
-import { Heading } from "~/components/heading";
-import { Text } from "~/components/text";
-import { Link } from "~/components/link";
-import { getUserByEmail } from "~/services/users";
-import { sendMagicLinkEmail } from "~/services/email/email.service";
-import { createMagicLink } from "~/services/auth/magic-link.service";
+import { getZodConstraint, parseWithZod } from '@conform-to/zod';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import { Form, json, redirect, useActionData, useLoaderData } from '@remix-run/react';
+import { Button } from '~/components/button';
+import { Field, FieldGroup, Fieldset, Label } from '~/components/fieldset';
+import { Input } from '~/components/input';
+import { z } from 'zod';
+import { getFormProps, SubmissionResult, useForm } from '@conform-to/react';
+import { Heading } from '~/components/heading';
+import { Text } from '~/components/text';
+import { Link } from '~/components/link';
+import { UserService } from '~/services/user/user.service';
+import { MagicLinkService } from '~/services/magic-link/magic-link.service';
+import { EmailService } from '~/services/email/email.service';
 
 const schema = z.object({
-  email: z.string({ required_error: "Email is required." }),
+  email: z.string({ required_error: 'Email is required.' })
 });
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  const error = url.searchParams.get("error");
-  const success = url.searchParams.get("success");
+  const error = url.searchParams.get('error');
+  const success = url.searchParams.get('success');
 
   let errorMessage = null;
-  if (error === "invalid-or-expired-magic-link") {
-    errorMessage =
-      "The magic link is invalid or has expired. Please request a new one.";
+  if (error === 'invalid-or-expired-magic-link') {
+    errorMessage = 'The magic link is invalid or has expired. Please request a new one.';
   }
 
-  return json({ errorMessage, success: success === "true" });
+  return json({ errorMessage, success: success === 'true' });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   const submission = parseWithZod(await request.formData(), { schema });
 
-  if (submission.status !== "success") {
+  if (submission.status !== 'success') {
     return submission.reply();
   }
 
-  const user = await getUserByEmail(submission.value.email);
+  const user = await UserService.getByEmail(submission.value.email);
 
   if (!user) {
     return submission.reply({
-      fieldErrors: { email: ["A user was not found with this email."] },
+      fieldErrors: { email: ['A user was not found with this email.'] }
     });
   }
 
-  const magicLink = await createMagicLink(user.id);
-  await sendMagicLinkEmail(user.email, user.firstName, magicLink);
+  const magicLink = await MagicLinkService.createMagicLink(user.id);
+  await EmailService.sendMagicLinkEmail(user.email, user.firstName, magicLink);
 
-  return redirect("/login?success=true");
+  return redirect('/login?success=true');
 }
 
 export default function Login() {
@@ -65,11 +58,11 @@ export default function Login() {
   const [form, fields] = useForm({
     lastResult: actionData as any,
     constraint: getZodConstraint(schema),
-    shouldValidate: "onBlur",
-    shouldRevalidate: "onInput",
+    shouldValidate: 'onBlur',
+    shouldRevalidate: 'onInput',
     onValidate({ formData }) {
       return parseWithZod(formData, { schema });
-    },
+    }
   });
 
   return (
@@ -97,15 +90,12 @@ export default function Login() {
                   Check Your Email
                 </Heading>
                 <Text className="mt-2 text-gray-600">
-                  We've sent a magic link to your email address. Click the link
-                  to sign in to your account.
+                  We've sent a magic link to your email address. Click the link to sign in to your
+                  account.
                 </Text>
                 <Text className="mt-4 text-sm text-gray-500">
-                  Didn't receive an email? Check your spam folder or{" "}
-                  <Link
-                    href="/login"
-                    className="font-medium text-indigo-600 hover:text-indigo-500"
-                  >
+                  Didn't receive an email? Check your spam folder or{' '}
+                  <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
                     try again
                   </Link>
                 </Text>
@@ -115,7 +105,7 @@ export default function Login() {
                 <div>
                   <Heading>Sign in to your account</Heading>
                   <Text className="mt-2">
-                    Not a member yet?{" "}
+                    Not a member yet?{' '}
                     <Link
                       className="font-semibold text-indigo-600 hover:text-indigo-500"
                       href="/register"
@@ -136,11 +126,7 @@ export default function Login() {
                       <FieldGroup>
                         <Field>
                           <Label>Email Address</Label>
-                          <Input
-                            type="email"
-                            name="email"
-                            field={fields.email}
-                          />
+                          <Input type="email" name="email" field={fields.email} />
                         </Field>
                       </FieldGroup>
                     </Fieldset>
