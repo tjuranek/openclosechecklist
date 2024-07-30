@@ -1,6 +1,6 @@
+import { UniqueConstraintError } from '~/db/errors';
 import { Prisma } from '@prisma/client';
 import { prisma } from '~/db/client';
-import { UniqueConstraintError } from '~/db/errors';
 
 export class UserService {
   static async create(firstName: string, lastName: string, email: string) {
@@ -28,25 +28,41 @@ export class UserService {
 
   static async findById(id: string) {
     return await prisma.user.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        ownedCompanies: true,
+        managedLocations: true
+      }
     });
   }
 
   static async findByEmail(email: string) {
     return await prisma.user.findUnique({
-      where: { email }
+      where: { email },
+      include: {
+        ownedCompanies: true,
+        managedLocations: true
+      }
     });
   }
 
   static async getById(id: string) {
     return await prisma.user.findUniqueOrThrow({
-      where: { id }
+      where: { id },
+      include: {
+        ownedCompanies: true,
+        managedLocations: true
+      }
     });
   }
 
   static async getByEmail(email: string) {
     return await prisma.user.findUniqueOrThrow({
-      where: { email }
+      where: { email },
+      include: {
+        ownedCompanies: true,
+        managedLocations: true
+      }
     });
   }
 }

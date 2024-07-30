@@ -1,10 +1,18 @@
-enum Routes {
+export enum Routes {
+  Checklists = '/checklists',
+  Home = '/home',
+  Locations = '/locations',
   Login = '/login',
   Logout = '/logout',
-  Register = '/register'
+  Onboarding = '/onboarding',
+  Register = '/register',
+  Settings = '/settings'
 }
 
-export function replaceRouteParams(route: Routes, params: Record<string, string | number>): string {
+export function replaceRouteParams(
+  route: Routes,
+  params: Record<string, string | number>
+): string {
   let result = route as string;
 
   for (const [key, value] of Object.entries(params)) {

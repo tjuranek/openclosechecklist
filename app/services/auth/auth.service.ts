@@ -1,12 +1,14 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/node';
-import { User } from '@prisma/client';
 import { UserService } from '../user/user.service';
+import { Routes } from '~/constants/routes';
+import { env } from '~/constants/env';
+import { User } from '@prisma/client';
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: 'session',
     secure: process.env.NODE_ENV === 'production',
-    secrets: ['your_session_secret'],
+    secrets: [env.COOKIE_SECRET],
     sameSite: 'lax',
     path: '/',
     maxAge: 60 * 60 * 24 * 180,
@@ -29,7 +31,7 @@ export class AuthService {
     const session = await this.getSession();
     session.set('userId', userId);
 
-    return redirect('/dashboard', {
+    return redirect(Routes.Home, {
       headers: {
         'Set-Cookie': await sessionStorage.commitSession(session)
       }
@@ -39,19 +41,19 @@ export class AuthService {
   async logout() {
     const session = await this.getSession();
 
-    throw redirect('/login', {
+    throw redirect(Routes.Login, {
       headers: {
         'Set-Cookie': await sessionStorage.destroySession(session)
       }
     });
   }
 
-  async getUser(): Promise<User> {
+  async getUser() {
     const session = await this.getSession();
     const userId = (await session.get('userId')) as string;
 
     if (!userId) {
-      throw redirect('/login');
+      throw redirect(Routes.Login);
     }
 
     const user = await UserService.findById(userId);

@@ -1,34 +1,39 @@
-import { getZodConstraint, parseWithZod } from '@conform-to/zod';
-import { Form, redirect, useActionData } from '@remix-run/react';
-import { Button } from '~/components/button';
-import { Field, Label } from '~/components/fieldset';
-import { Input } from '~/components/input';
-import { z } from 'zod';
-import { getFormProps, useForm } from '@conform-to/react';
-import { Text } from '~/components/text';
-import { withAuth } from '~/services/auth/auth.util';
-import { CompanyService } from '~/services/company/company.service';
 import { LocationService } from '~/services/location/location.service';
+import { CompanyService } from '~/services/company/company.service';
+import { Form, redirect, useActionData } from '@remix-run/react';
+import { getZodConstraint, parseWithZod } from '@conform-to/zod';
+import { AuthService } from '~/services/auth/auth.service';
+import { getFormProps, useForm } from '@conform-to/react';
+import { withAuth } from '~/services/auth/auth.util';
+import { Field, Label } from '~/components/fieldset';
+import { ActionFunctionArgs } from '@remix-run/node';
+import { Button } from '~/components/button';
+import { Input } from '~/components/input';
+import { Text } from '~/components/text';
+import { z } from 'zod';
 
 const schema = z.object({
   companyName: z.string({ required_error: 'Company name is required.' }),
   location: z.string({ required_error: 'Location is required.' })
 });
 
-export const action = withAuth(async ({ request, user }) => {
+export async function action({ request }: ActionFunctionArgs) {
+  console.log('in action');
+  const user = await new AuthService(request).getUser();
   const submission = parseWithZod(await request.formData(), { schema });
 
   if (submission.status !== 'success') {
+    console.log('in here');
     return submission.reply();
   }
 
   const { companyName, location } = submission.value;
 
+  console.log('valid');
   const company = await CompanyService.createCompany(companyName, user.id);
   await LocationService.createLocation(location, company.id);
-
   return redirect('/dashboard');
-});
+}
 
 export default function Onboarding() {
   const lastResult = useActionData<typeof action>();
@@ -51,12 +56,17 @@ export default function Onboarding() {
             Welcome to Open Close Checklist
           </h1>
           <p className="text-muted-foreground text-md">
-            Thanks for registering. We're excited to help you get your business operationally ready
-            for every open. A couple quick questions to help us get started.
+            Thanks for registering. We're excited to help you get your business
+            operationally ready for every open. A couple quick questions to help
+            us get started.
           </p>
         </div>
 
-        <Form method="POST" {...getFormProps(form)} className="w-full max-w-md text-left space-y-2">
+        <Form
+          method="POST"
+          {...getFormProps(form)}
+          className="w-full max-w-md text-left space-y-2"
+        >
           <Field>
             <Label>Company Name</Label>
             <Input type="text" name="companyName" field={fields.companyName} />
