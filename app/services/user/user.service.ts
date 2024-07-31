@@ -50,10 +50,51 @@ export class UserService {
     return await prisma.user.findUniqueOrThrow({
       where: { id },
       include: {
-        ownedCompanies: true,
-        managedLocations: true
+        ownedCompanies: {
+          include: {
+            company: true
+          }
+        },
+        managedLocations: {
+          include: {
+            location: {
+              include: {
+                company: true
+              }
+            }
+          }
+        }
       }
     });
+  }
+
+  static async getAccessibleCompanies(id: string) {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id },
+      include: {
+        ownedCompanies: {
+          include: {
+            company: true
+          }
+        },
+        managedLocations: {
+          include: {
+            location: {
+              include: {
+                company: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const ownedCompanies = user.ownedCompanies.map(oc => oc.company);
+    const managedCompanies = user.managedLocations.map(
+      ml => ml.location.company
+    );
+
+    return [...new Set([...ownedCompanies, ...managedCompanies])];
   }
 
   static async getByEmail(email: string) {

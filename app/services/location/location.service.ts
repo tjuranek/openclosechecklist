@@ -1,23 +1,23 @@
-import { Prisma } from "@prisma/client";
-import { prisma } from "~/db/client";
-import { UniqueConstraintError } from "~/db/errors";
+import { UniqueConstraintError } from '~/db/errors';
+import { Prisma } from '@prisma/client';
+import { prisma } from '~/db/client';
 
 export class LocationService {
-  static async createLocation(name: string, companyId: number) {
+  static async createLocation(name: string, companyId: string) {
     try {
       return await prisma.location.create({
         data: {
           name,
-          companyId,
-        },
+          companyId
+        }
       });
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
+        error.code === 'P2002'
       ) {
         throw new UniqueConstraintError(
-          "A location with that name already exists for this company."
+          'A location with that name already exists for this company.'
         );
       }
 
@@ -25,21 +25,24 @@ export class LocationService {
     }
   }
 
-  static async getLocationById(id: number) {
+  static async getLocationById(id: string) {
     return await prisma.location.findUnique({
-      where: { id },
+      where: { id }
     });
   }
 
-  static async getLocationsByCompanyId(companyId: number) {
+  static async getLocationsByCompanyId(companyId: string) {
     return await prisma.location.findMany({
       where: { companyId },
+      include: {
+        managers: true
+      }
     });
   }
 
-  static async getLocationByNameAndCompanyId(name: string, companyId: number) {
+  static async getLocationByNameAndCompanyId(name: string, companyId: string) {
     return await prisma.location.findFirst({
-      where: { name, companyId },
+      where: { name, companyId }
     });
   }
 }

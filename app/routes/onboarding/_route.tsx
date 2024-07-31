@@ -4,10 +4,10 @@ import { Form, redirect, useActionData } from '@remix-run/react';
 import { getZodConstraint, parseWithZod } from '@conform-to/zod';
 import { AuthService } from '~/services/auth/auth.service';
 import { getFormProps, useForm } from '@conform-to/react';
-import { withAuth } from '~/services/auth/auth.util';
 import { Field, Label } from '~/components/fieldset';
 import { ActionFunctionArgs } from '@remix-run/node';
 import { Button } from '~/components/button';
+import { Routes } from '~/constants/routes';
 import { Input } from '~/components/input';
 import { Text } from '~/components/text';
 import { z } from 'zod';
@@ -18,21 +18,21 @@ const schema = z.object({
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  console.log('in action');
-  const user = await new AuthService(request).getUser();
+  const authService = new AuthService(request);
+  const user = await authService.getUser();
+
   const submission = parseWithZod(await request.formData(), { schema });
 
   if (submission.status !== 'success') {
-    console.log('in here');
     return submission.reply();
   }
 
   const { companyName, location } = submission.value;
 
-  console.log('valid');
   const company = await CompanyService.createCompany(companyName, user.id);
   await LocationService.createLocation(location, company.id);
-  return redirect('/dashboard');
+
+  return await authService.setSelectedCompanyId(company.id);
 }
 
 export default function Onboarding() {

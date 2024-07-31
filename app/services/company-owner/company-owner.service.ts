@@ -1,23 +1,23 @@
-import { Prisma } from "@prisma/client";
-import { prisma } from "~/db/client";
-import { UniqueConstraintError } from "~/db/errors";
+import { UniqueConstraintError } from '~/db/errors';
+import { Prisma } from '@prisma/client';
+import { prisma } from '~/db/client';
 
 export class CompanyOwnerService {
-  static async createCompanyOwner(userId: string, companyId: number) {
+  static async createCompanyOwner(userId: string, companyId: string) {
     try {
       return await prisma.companyOwner.create({
         data: {
           userId,
-          companyId,
-        },
+          companyId
+        }
       });
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
+        error.code === 'P2002'
       ) {
         throw new UniqueConstraintError(
-          "This user is already an owner of this company."
+          'This user is already an owner of this company.'
         );
       }
 
@@ -25,23 +25,23 @@ export class CompanyOwnerService {
     }
   }
 
-  static async getCompanyOwnerById(id: number) {
+  static async getCompanyOwnerById(id: string) {
     return await prisma.companyOwner.findUnique({
-      where: { id },
+      where: { id }
     });
   }
 
   static async getCompanyOwnersByUserId(userId: string) {
     return await prisma.companyOwner.findMany({
       where: { userId },
-      include: { company: true },
+      include: { company: true }
     });
   }
 
-  static async getCompanyOwnersByCompanyId(companyId: number) {
+  static async getCompanyOwnersByCompanyId(companyId: string) {
     return await prisma.companyOwner.findMany({
       where: { companyId },
-      include: { user: true },
+      include: { user: true }
     });
   }
 }

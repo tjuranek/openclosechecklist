@@ -22,7 +22,7 @@ model User {
 }
 
 model Company {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(uuid())
   name      String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -33,13 +33,13 @@ model Company {
 }
 
 model CompanyOwner {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   company   Company @relation(fields: [companyId], references: [id])
-  companyId Int
+  companyId String
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
@@ -48,26 +48,26 @@ model CompanyOwner {
 }
 
 model Location {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(uuid())
   name      String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   company   Company @relation(fields: [companyId], references: [id])
-  companyId Int
+  companyId String
 
   managers LocationManager[]
 }
 
 model LocationManager {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   location   Location @relation(fields: [locationId], references: [id])
-  locationId Int
+  locationId String
 
   user   User   @relation(fields: [userId], references: [id])
   userId String

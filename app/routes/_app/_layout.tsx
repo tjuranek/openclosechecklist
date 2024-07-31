@@ -15,6 +15,16 @@ import {
   SidebarSection
 } from '~/components/sidebar';
 import {
+  Form,
+  json,
+  Link,
+  Outlet,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+  useSubmit
+} from '@remix-run/react';
+import {
   Navbar,
   NavbarDivider,
   NavbarItem,
@@ -28,12 +38,15 @@ import {
   Cog8ToothIcon,
   PlusIcon
 } from '@heroicons/react/16/solid';
-import { json, Outlet, useLoaderData } from '@remix-run/react';
+import { getCompanyInitials } from '~/services/company/company.util';
+import { CompanyService } from '~/services/company/company.service';
+import { replaceRouteParams, Routes } from '~/constants/routes';
 import { StackedLayout } from '~/components/stacked-layout';
 import { getUserInitials } from '~/services/user/user.util';
+import { UserService } from '~/services/user/user.service';
 import { withAuth } from '~/services/auth/auth.util';
 import { Avatar } from '~/components/avatar';
-import { Routes } from '~/constants/routes';
+import { Company } from '@prisma/client';
 
 const navItems = [
   { label: 'Home', url: Routes.Home },
@@ -41,12 +54,71 @@ const navItems = [
   { label: 'Locations', url: Routes.Locations }
 ];
 
-export const loader = withAuth(({ user }) => {
-  return json({ user });
+export const loader = withAuth(async ({ user, selectedCompanyId }) => {
+  const accessibleCompanies = await UserService.getAccessibleCompanies(user.id);
+
+  return json({ accessibleCompanies, selectedCompanyId, user });
 });
 
 export default function Layout() {
-  const { user } = useLoaderData<typeof loader>();
+  const { accessibleCompanies, selectedCompanyId, user } =
+    useLoaderData<typeof loader>();
+
+  const navigate = useNavigate();
+
+  const selectedCompany = accessibleCompanies.find(
+    ac => ac.id === selectedCompanyId
+  );
+
+  if (!selectedCompany) {
+    throw new Error(
+      'Company not found on user given selected company id in session.'
+    );
+  }
+
+  const switchableCompanies = accessibleCompanies.filter(
+    ac => ac.id !== selectedCompanyId
+  );
+
+  function CompanyDropdownMenu() {
+    return (
+      <DropdownMenu className="min-w-80 lg:min-w-64" anchor="bottom start">
+        <DropdownItem href="/teams/1/settings">
+          <Cog8ToothIcon />
+          <DropdownLabel>Settings</DropdownLabel>
+        </DropdownItem>
+
+        {switchableCompanies.length > 0 && (
+          <>
+            <DropdownDivider />
+
+            {switchableCompanies.map(sc => (
+              <DropdownItem
+                key={sc.id}
+                onClick={() =>
+                  navigate(
+                    replaceRouteParams(Routes.ResourceSelectCompany, {
+                      companyId: sc.id
+                    })
+                  )
+                }
+              >
+                <Avatar slot="icon" initials={getCompanyInitials(sc)} />
+                <DropdownLabel>{sc.name}</DropdownLabel>
+              </DropdownItem>
+            ))}
+          </>
+        )}
+
+        <DropdownDivider />
+
+        <DropdownItem href="/teams/create">
+          <PlusIcon />
+          <DropdownLabel>New team</DropdownLabel>
+        </DropdownItem>
+      </DropdownMenu>
+    );
+  }
 
   return (
     <StackedLayout
@@ -54,8 +126,8 @@ export default function Layout() {
         <Navbar>
           <Dropdown>
             <DropdownButton as={NavbarItem} className="max-lg:hidden">
-              <Avatar initials="NC" />
-              <NavbarLabel>Nisswa Courtyard</NavbarLabel>
+              <Avatar initials={getCompanyInitials(selectedCompany)} />
+              <NavbarLabel>{selectedCompany.name}</NavbarLabel>
               <ChevronDownIcon />
             </DropdownButton>
 
@@ -106,6 +178,7 @@ export default function Layout() {
                 <SidebarLabel>Tailwind Labs</SidebarLabel>
                 <ChevronDownIcon />
               </DropdownButton>
+
               <CompanyDropdownMenu />
             </Dropdown>
           </SidebarHeader>
@@ -123,30 +196,5 @@ export default function Layout() {
     >
       <Outlet />
     </StackedLayout>
-  );
-}
-
-function CompanyDropdownMenu() {
-  return (
-    <DropdownMenu className="min-w-80 lg:min-w-64" anchor="bottom start">
-      <DropdownItem href="/teams/1/settings">
-        <Cog8ToothIcon />
-        <DropdownLabel>Settings</DropdownLabel>
-      </DropdownItem>
-
-      <DropdownDivider />
-
-      <DropdownItem href="/teams/2">
-        <Avatar slot="icon" initials="RP" />
-        <DropdownLabel>Rafferty's Pizza</DropdownLabel>
-      </DropdownItem>
-
-      <DropdownDivider />
-
-      <DropdownItem href="/teams/create">
-        <PlusIcon />
-        <DropdownLabel>New team</DropdownLabel>
-      </DropdownItem>
-    </DropdownMenu>
   );
 }

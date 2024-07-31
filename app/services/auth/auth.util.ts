@@ -16,18 +16,22 @@ type AuthenticatedDataFunctionArgs = DataFunctionArgs & {
       ownedCompanies: true;
     };
   }>;
+  selectedCompanyId: string;
 };
 
 type AuthenticatedDataFunction<T> = (args: AuthenticatedDataFunctionArgs) => T;
 
 export function withAuth<T>(dataFunction: AuthenticatedDataFunction<T>) {
   return async function (args: DataFunctionArgs) {
-    const user = await new AuthService(args.request).getUser();
+    const authService = new AuthService(args.request);
+    const user = await authService.getUser();
 
     if (!user.ownedCompanies.length && !user.managedLocations.length) {
       return redirect(Routes.Onboarding);
     }
 
-    return dataFunction({ ...args, user });
+    const selectedCompanyId = await authService.getSelectedCompanyId();
+
+    return dataFunction({ ...args, user, selectedCompanyId });
   };
 }

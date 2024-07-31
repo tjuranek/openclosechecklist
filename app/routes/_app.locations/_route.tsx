@@ -4,12 +4,23 @@ import {
   PlusIcon,
   UsersIcon
 } from '@heroicons/react/16/solid';
+import { LocationService } from '~/services/location/location.service';
+import { withAuth } from '~/services/auth/auth.util';
+import { json, MetaFunction } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
 import { Heading } from '~/components/heading';
-import { MetaFunction } from '@remix-run/node';
 import { Button } from '~/components/button';
 import { Text } from '~/components/text';
 
+export const loader = withAuth(async ({ user }) => {
+  const locations = await LocationService.getLocationsByCompanyId('1');
+
+  return json({ locations });
+});
+
 export default function Locations() {
+  const { locations } = useLoaderData<typeof loader>();
+
   return (
     <>
       <div className="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
@@ -30,8 +41,8 @@ export default function Locations() {
       </div>
 
       <ul role="list" className="divide-y divide-gray-100 mt-8">
-        {people.map(person => (
-          <li key={person.email} className="flex justify-between gap-x-6 py-5">
+        {locations.map(location => (
+          <li key={location.id} className="flex justify-between gap-x-6 py-5">
             <div className="flex min-w-0 gap-x-4">
               <div className="h-12 w-12 bg-blue-400 rounded-full flex items-center justify-center">
                 <BuildingStorefrontIcon className="h-6 w-6 text-white" />
@@ -39,7 +50,7 @@ export default function Locations() {
 
               <div className="min-w-0 flex-auto">
                 <p className="text-sm font-semibold leading-6 text-gray-900">
-                  Nisswa
+                  {location.name}
                 </p>
                 <p className="mt-1 truncate text-xs leading-5 text-gray-500">
                   Last updated on 7/30/24

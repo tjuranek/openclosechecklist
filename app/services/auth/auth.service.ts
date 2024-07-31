@@ -2,7 +2,6 @@ import { createCookieSessionStorage, redirect } from '@remix-run/node';
 import { UserService } from '../user/user.service';
 import { Routes } from '~/constants/routes';
 import { env } from '~/constants/env';
-import { User } from '@prisma/client';
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -29,7 +28,14 @@ export class AuthService {
 
   async login(userId: string) {
     const session = await this.getSession();
+    const accessibleCompanies =
+      await UserService.getAccessibleCompanies(userId);
+
     session.set('userId', userId);
+
+    if (accessibleCompanies.length) {
+      session.set('selectedCompanyId', accessibleCompanies[0]);
+    }
 
     return redirect(Routes.Home, {
       headers: {
@@ -63,5 +69,29 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async setSelectedCompanyId(companyId: string) {
+    const session = await this.getSession();
+    session.set('selectedCompanyId', companyId);
+
+    return redirect(Routes.Home, {
+      headers: {
+        'Set-Cookie': await sessionStorage.commitSession(session)
+      }
+    });
+  }
+
+  async getSelectedCompanyId(): Promise<string> {
+    const session = await this.getSession();
+    const selectedCompanyId = session.get('selectedCompanyId') as
+      | string
+      | undefined;
+
+    if (!selectedCompanyId) {
+      throw new Error('No selected company found');
+    }
+
+    return selectedCompanyId;
   }
 }

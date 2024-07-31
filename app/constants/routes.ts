@@ -6,6 +6,7 @@ export enum Routes {
   Logout = '/logout',
   Onboarding = '/onboarding',
   Register = '/register',
+  ResourceSelectCompany = '/resource/select-company/$companyId',
   Settings = '/settings'
 }
 
