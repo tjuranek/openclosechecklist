@@ -3,12 +3,12 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '~/db/client';
 
 export class LocationService {
-  static async createLocation(name: string, companyId: string) {
+  static async createLocation(companyId: string, data: { name: string }) {
     try {
       return await prisma.location.create({
         data: {
-          name,
-          companyId
+          companyId,
+          ...data
         }
       });
     } catch (error) {
@@ -26,7 +26,7 @@ export class LocationService {
   }
 
   static async getLocationById(id: string) {
-    return await prisma.location.findUnique({
+    return await prisma.location.findUniqueOrThrow({
       where: { id }
     });
   }

@@ -25,16 +25,12 @@ export class CompanyOwnerService {
     }
   }
 
-  static async getCompanyOwnerById(id: string) {
-    return await prisma.companyOwner.findUnique({
-      where: { id }
-    });
-  }
-
-  static async getCompanyOwnersByUserId(userId: string) {
+  static async getByCompanyId(companyId: string) {
     return await prisma.companyOwner.findMany({
-      where: { userId },
-      include: { company: true }
+      where: { companyId },
+      include: {
+        user: true
+      }
     });
   }
 

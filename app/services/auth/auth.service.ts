@@ -34,7 +34,7 @@ export class AuthService {
     session.set('userId', userId);
 
     if (accessibleCompanies.length) {
-      session.set('selectedCompanyId', accessibleCompanies[0]);
+      session.set('selectedCompanyId', accessibleCompanies[0].id);
     }
 
     return redirect(Routes.Home, {

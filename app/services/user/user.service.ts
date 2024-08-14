@@ -106,4 +106,14 @@ export class UserService {
       }
     });
   }
+
+  static async update(
+    id: string,
+    data: { firstName?: string; lastName?: string; email?: string }
+  ) {
+    return await prisma.user.update({
+      where: { id },
+      data
+    });
+  }
 }

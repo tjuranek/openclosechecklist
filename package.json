@@ -1,60 +1,62 @@
 {
-	"name": "openclosechecklist",
-	"private": true,
-	"sideEffects": false,
-	"type": "module",
-	"scripts": {
-		"aider": "aider --no-auto-commit --no-auto-lint",
-		"build": "remix vite:build",
-		"dev": "remix vite:dev",
-		"dev:email": "email dev --dir app/services/email/templates --port 4001",
-		"start": "remix-serve ./build/server/index.js",
-		"typecheck": "tsc"
-	},
-	"dependencies": {
-		"@conform-to/react": "^1.1.5",
-		"@conform-to/zod": "^1.1.5",
-		"@headlessui/react": "^2.0.4",
-		"@heroicons/react": "^2.1.4",
-		"@prisma/client": "^5.15.0",
-		"@react-email/components": "0.0.22",
-		"@remix-run/node": "^2.9.2",
-		"@remix-run/react": "^2.9.2",
-		"@remix-run/serve": "^2.9.2",
-		"clsx": "^2.1.1",
-		"framer-motion": "^11.2.10",
-		"input-otp": "^1.2.4",
-		"isbot": "^4.1.0",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
-		"react-email": "2.1.6",
-		"resend": "^3.5.0",
-		"tailwind-merge": "^2.3.0",
-		"tiny-invariant": "^1.3.3",
-		"zod": "^3.23.8"
-	},
-	"devDependencies": {
-		"@remix-run/dev": "^2.9.2",
-		"@tailwindcss/forms": "^0.5.7",
-		"@types/react": "^18.2.20",
-		"@types/react-dom": "^18.2.7",
-		"@typescript-eslint/eslint-plugin": "^6.7.4",
-		"@typescript-eslint/parser": "^6.7.4",
-		"autoprefixer": "^10.4.19",
-		"postcss": "^8.4.38",
-		"prettier": "^3.3.3",
-		"prettier-plugin-sort-imports": "^1.8.6",
-		"prisma": "^5.15.0",
-		"remix-flat-routes": "^0.6.5",
-		"tailwindcss": "^3.4.4",
-		"typescript": "^5.1.6",
-		"vite": "^5.1.0",
-		"vite-tsconfig-paths": "^4.2.1"
-	},
-	"engines": {
-		"node": ">=20.0.0"
-	},
-	"prisma": {
-		"schema": "app/db/schema.prisma"
-	}
+  "name": "openclosechecklist",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "aider": "aider --no-auto-commit --no-auto-lint",
+    "build": "remix vite:build",
+    "dev": "remix vite:dev",
+    "dev:email": "email dev --dir app/services/email/templates --port 4001",
+    "start": "remix-serve ./build/server/index.js",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@conform-to/react": "^1.1.5",
+    "@conform-to/zod": "^1.1.5",
+    "@headlessui/react": "^2.0.4",
+    "@heroicons/react": "^2.1.4",
+    "@prisma/client": "^5.15.0",
+    "@react-email/components": "0.0.22",
+    "@remix-run/node": "^2.9.2",
+    "@remix-run/react": "^2.9.2",
+    "@remix-run/serve": "^2.9.2",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.2.10",
+    "input-otp": "^1.2.4",
+    "isbot": "^4.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-email": "2.1.6",
+    "resend": "^3.5.0",
+    "tailwind-merge": "^2.3.0",
+    "tiny-invariant": "^1.3.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.9.2",
+    "@tailwindcss/forms": "^0.5.7",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "prettier": "^3.3.3",
+    "prettier-plugin-sort-imports": "^1.8.6",
+    "prisma": "^5.15.0",
+    "remix-flat-routes": "^0.6.5",
+    "tailwindcss": "^3.4.4",
+    "tsx": "^4.17.0",
+    "typescript": "^5.1.6",
+    "vite": "^5.1.0",
+    "vite-tsconfig-paths": "^4.2.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "prisma": {
+    "schema": "app/db/schema.prisma",
+    "seed": "tsx app/db/seed.ts"
+  }
 }

@@ -5,15 +5,16 @@ import {
   UsersIcon
 } from '@heroicons/react/16/solid';
 import { LocationService } from '~/services/location/location.service';
+import { Link, useLoaderData } from '@remix-run/react';
 import { withAuth } from '~/services/auth/auth.util';
 import { json, MetaFunction } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
 import { Heading } from '~/components/heading';
 import { Button } from '~/components/button';
 import { Text } from '~/components/text';
 
-export const loader = withAuth(async ({ user }) => {
-  const locations = await LocationService.getLocationsByCompanyId('1');
+export const loader = withAuth(async ({ selectedCompanyId, user }) => {
+  const locations =
+    await LocationService.getLocationsByCompanyId(selectedCompanyId);
 
   return json({ locations });
 });
@@ -42,46 +43,48 @@ export default function Locations() {
 
       <ul role="list" className="divide-y divide-gray-100 mt-8">
         {locations.map(location => (
-          <li key={location.id} className="flex justify-between gap-x-6 py-5">
-            <div className="flex min-w-0 gap-x-4">
-              <div className="h-12 w-12 bg-blue-400 rounded-full flex items-center justify-center">
-                <BuildingStorefrontIcon className="h-6 w-6 text-white" />
+          <Link to={`/locations/${location.id}`}>
+            <li key={location.id} className="flex justify-between gap-x-6 py-5">
+              <div className="flex min-w-0 gap-x-4">
+                <div className="h-12 w-12 bg-blue-400 rounded-full flex items-center justify-center">
+                  <BuildingStorefrontIcon className="h-6 w-6 text-white" />
+                </div>
+
+                <div className="min-w-0 flex-auto">
+                  <p className="text-sm font-semibold leading-6 text-gray-900">
+                    {location.name}
+                  </p>
+                  <p className="mt-1 truncate text-xs leading-5 text-gray-500">
+                    Last updated on 7/30/24
+                  </p>
+                </div>
               </div>
 
-              <div className="min-w-0 flex-auto">
-                <p className="text-sm font-semibold leading-6 text-gray-900">
-                  {location.name}
-                </p>
-                <p className="mt-1 truncate text-xs leading-5 text-gray-500">
-                  Last updated on 7/30/24
-                </p>
-              </div>
-            </div>
+              <dl className="flex w-full flex-none justify-between gap-x-8 sm:w-auto">
+                <div className="flex w-8 gap-x-2.5">
+                  <dt>
+                    <span className="sr-only">Total checklists</span>
+                    <ClipboardDocumentListIcon
+                      aria-hidden={true}
+                      className="h-6 w-6 text-gray-400"
+                    />
+                  </dt>
+                  <dd className="text-sm leading-6 text-gray-900">2</dd>
+                </div>
 
-            <dl className="flex w-full flex-none justify-between gap-x-8 sm:w-auto">
-              <div className="flex w-8 gap-x-2.5">
-                <dt>
-                  <span className="sr-only">Total checklists</span>
-                  <ClipboardDocumentListIcon
-                    aria-hidden={true}
-                    className="h-6 w-6 text-gray-400"
-                  />
-                </dt>
-                <dd className="text-sm leading-6 text-gray-900">2</dd>
-              </div>
-
-              <div className="flex w-8 gap-x-2.5">
-                <dt>
-                  <span className="sr-only">Total managers</span>
-                  <UsersIcon
-                    aria-hidden={true}
-                    className="h-6 w-6 text-gray-400"
-                  />
-                </dt>
-                <dd className="text-sm leading-6 text-gray-900">4</dd>
-              </div>
-            </dl>
-          </li>
+                <div className="flex w-8 gap-x-2.5">
+                  <dt>
+                    <span className="sr-only">Total managers</span>
+                    <UsersIcon
+                      aria-hidden={true}
+                      className="h-6 w-6 text-gray-400"
+                    />
+                  </dt>
+                  <dd className="text-sm leading-6 text-gray-900">4</dd>
+                </div>
+              </dl>
+            </li>
+          </Link>
         ))}
       </ul>
     </>

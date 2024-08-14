@@ -1,5 +1,6 @@
 export enum Routes {
   Checklists = '/checklists',
+  CompanySettings = '/company/$companyId/settings',
   Home = '/home',
   Locations = '/locations',
   Login = '/login',

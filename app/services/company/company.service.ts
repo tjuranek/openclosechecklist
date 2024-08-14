@@ -29,15 +29,9 @@ export class CompanyService {
     }
   }
 
-  static async getCompanyById(id: string) {
+  static async getById(id: string) {
     return await prisma.company.findUniqueOrThrow({
       where: { id }
-    });
-  }
-
-  static async getCompanyByName(name: string) {
-    return await prisma.company.findFirstOrThrow({
-      where: { name }
     });
   }
 }

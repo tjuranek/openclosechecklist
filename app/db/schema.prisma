@@ -28,8 +28,9 @@ model Company {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  locations Location[]
-  owners    CompanyOwner[]
+  invitations Invitation[]
+  locations   Location[]
+  owners      CompanyOwner[]
 }
 
 model CompanyOwner {
@@ -57,7 +58,8 @@ model Location {
   company   Company @relation(fields: [companyId], references: [id])
   companyId String
 
-  managers LocationManager[]
+  invitations Invitation[]
+  managers    LocationManager[]
 }
 
 model LocationManager {
@@ -83,4 +85,22 @@ model MagicLink {
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
+}
+
+model Invitation {
+  id    String @id @default(uuid())
+  email String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  company   Company? @relation(fields: [companyId], references: [id])
+  companyId String?
+
+  location   Location? @relation(fields: [locationId], references: [id])
+  locationId String?
+
+  @@unique([email, companyId])
+  @@unique([email, locationId])
 }

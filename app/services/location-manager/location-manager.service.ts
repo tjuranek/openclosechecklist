@@ -27,21 +27,55 @@ export class LocationManagerService {
 
   static async getLocationManagerById(id: string) {
     return await prisma.locationManager.findUnique({
-      where: { id }
+      where: { id, deletedAt: null }
     });
   }
 
   static async getLocationManagersByUserId(userId: string) {
     return await prisma.locationManager.findMany({
-      where: { userId },
+      where: { userId, deletedAt: null },
       include: { location: true }
     });
   }
 
   static async getLocationManagersByLocationId(locationId: string) {
     return await prisma.locationManager.findMany({
-      where: { locationId },
+      where: { locationId, deletedAt: null },
       include: { user: true }
+    });
+  }
+
+  static async findByCompanyId(companyId: string) {
+    return await prisma.locationManager.findMany({
+      where: {
+        location: {
+          companyId
+        },
+        deletedAt: null
+      },
+      include: {
+        user: true
+      }
+    });
+  }
+
+  static async softDeleteByCompanyIdAndUserId(
+    companyId: string,
+    userId: string
+  ) {
+    const currentDate = new Date();
+
+    return await prisma.locationManager.updateMany({
+      where: {
+        userId,
+        location: {
+          companyId
+        },
+        deletedAt: null
+      },
+      data: {
+        deletedAt: currentDate
+      }
     });
   }
 }

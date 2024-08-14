@@ -64,8 +64,6 @@ export default function Layout() {
   const { accessibleCompanies, selectedCompanyId, user } =
     useLoaderData<typeof loader>();
 
-  const navigate = useNavigate();
-
   const selectedCompany = accessibleCompanies.find(
     ac => ac.id === selectedCompanyId
   );
@@ -83,7 +81,11 @@ export default function Layout() {
   function CompanyDropdownMenu() {
     return (
       <DropdownMenu className="min-w-80 lg:min-w-64" anchor="bottom start">
-        <DropdownItem href="/teams/1/settings">
+        <DropdownItem
+          href={replaceRouteParams(Routes.CompanySettings, {
+            companyId: selectedCompanyId
+          })}
+        >
           <Cog8ToothIcon />
           <DropdownLabel>Settings</DropdownLabel>
         </DropdownItem>
@@ -95,13 +97,9 @@ export default function Layout() {
             {switchableCompanies.map(sc => (
               <DropdownItem
                 key={sc.id}
-                onClick={() =>
-                  navigate(
-                    replaceRouteParams(Routes.ResourceSelectCompany, {
-                      companyId: sc.id
-                    })
-                  )
-                }
+                href={replaceRouteParams(Routes.ResourceSelectCompany, {
+                  companyId: sc.id
+                })}
               >
                 <Avatar slot="icon" initials={getCompanyInitials(sc)} />
                 <DropdownLabel>{sc.name}</DropdownLabel>
